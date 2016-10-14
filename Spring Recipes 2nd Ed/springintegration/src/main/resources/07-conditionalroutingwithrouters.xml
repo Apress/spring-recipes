@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://www.springframework.org/schema/integration"
+             xmlns:context="http://www.springframework.org/schema/context"
+             xmlns:jms="http://www.springframework.org/schema/integration/jms"
+             xmlns:file="http://www.springframework.org/schema/integration/file"
+             xmlns:p="http://www.springframework.org/schema/p"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+             http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-1.0.xsd 
+             http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms-1.0.xsd 
+             http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd">
+
+    <context:annotation-config/>
+
+    <poller id="poller" default="true">
+        <interval-trigger interval="1000"/>
+    </poller>
+
+    <beans:bean id="fileSplitter"
+                class="com.apress.springrecipes.springintegration.CustomerBatchFileSplitter"/>
+    <beans:bean id="customerDeletionServiceActivator"
+                class="com.apress.springrecipes.springintegration.CustomerDeletionServiceActivator"/>
+    <beans:bean id="customAggregator"
+                class="com.apress.springrecipes.springintegration.MessagePayloadAggregator"/>
+    <beans:bean id="customerCreditScoreRouter"
+                class="com.apress.springrecipes.springintegration.CustomerCreditScoreRouter"/>
+    <beans:bean id="defaultCustomerServiceActivator" name="riskyCustomerServiceActivator,safeCustomerServiceActivator"
+                class="com.apress.springrecipes.springintegration.DefaultCustomerServiceActivator"/>
+    <beans:bean id="customerIdToCustomerTransformer"
+                class="com.apress.springrecipes.springintegration.CustomerIdToCustomerTransformer"/>
+
+    <channel id="customerBatchChannel"/>
+    <channel id="customerIdToCustomerTransformerChannel"/>
+    <channel id="customerChannel"/>
+    <channel id="messagePayloadAggregatorChannel"/>
+    <channel id="summaryChannel"/>
+    <channel id="safeCustomerChannel"/>
+    <channel id="riskyCustomerChannel"/>
+
+    <file:inbound-channel-adapter directory="file:${user.home}/customerstoremove/new/" channel="customerBatchChannel"
+                                  filename-pattern="^new.*txt$"/>
+    <splitter input-channel="customerBatchChannel" ref="fileSplitter"
+              output-channel="customerIdToCustomerTransformerChannel"/>
+    <transformer input-channel="customerIdToCustomerTransformerChannel" ref="customerIdToCustomerTransformer"
+                 output-channel="customerChannel"/>
+    <router input-channel="customerChannel" ref="customerCreditScoreRouter"/>
+    <service-activator input-channel="riskyCustomerChannel" ref="riskyCustomerServiceActivator"
+                       output-channel="messagePayloadAggregatorChannel"/>
+    <service-activator input-channel="safeCustomerChannel" ref="safeCustomerServiceActivator"
+                       output-channel="messagePayloadAggregatorChannel"/>
+    <aggregator input-channel="messagePayloadAggregatorChannel" ref="customAggregator" output-channel="summaryChannel"/>
+
+
+</beans:beans>

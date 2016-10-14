@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ this will demonstrate how to use Spring ActionScript
+-->
+<mx:Application
+        xmlns:flexlib="http://code.google.com/p/flexlib/"
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="absolute"
+        preinitialize="onPreInit(event)"
+        creationComplete="onComplete(event)"
+        >
+
+    <mx:Script>
+ 		<![CDATA[
+        import com.apress.springrecipes.Person;
+
+        import org.springextensions.actionscript.context.support.FlexXMLApplicationContext;
+        import org.springextensions.actionscript.context.support.XMLApplicationContext;
+
+        import mx.events.FlexEvent;
+        import mx.controls.Alert;
+
+        private var _contextUrl : String;
+        private var _applicationContext : XMLApplicationContext;
+
+        [Bindable]
+        [Embed(source="app-context1.xml",mimeType ="application/octet-stream")]
+        public var contextConfig : Class;
+
+        public function onPreInit(fe : FlexEvent) : void {
+            _contextUrl = "app-context1.xml";// this.parameters['SpringASContextURL'];
+        }
+
+        /*
+
+         If we were inside of some component that was managed by Spring AS, we coud use this syntax:
+
+         [Bindable]
+         [Autowired(name="george")]
+         private var georgeTheSecond:Person ;
+         */
+
+        private function onFlexXMLApplicationContextComplete(se : Event) : void {
+            var george : Person = _applicationContext.getObject("george") as Person;
+            george.say('Hello, world! My pet\'s name is ' + george.pet.name);
+        }
+
+        public function onComplete(fe : FlexEvent) : void {
+            this._applicationContext = new FlexXMLApplicationContext();
+            //this._applicationContext.addEmbeddedConfig(contextConfig);
+            this._applicationContext.addConfigLocation(_contextUrl);
+            //this._applicationContext.addConfig( contextConfig ) ;
+            this._applicationContext.addEventListener(Event.COMPLETE, onFlexXMLApplicationContextComplete);
+            this._applicationContext.load();
+        }
+ 			
+ 		]]>
+ 	</mx:Script>
+
+
+</mx:Application>

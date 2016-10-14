@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="weatherService"
+          class="com.apress.springrecipes.weather.WeatherServiceImpl"/>
+
+
+    <bean name="/WeatherService"
+          class="org.springframework.remoting.caucho.HessianServiceExporter">
+        <property name="service" ref="weatherService"/>
+        <property name="serviceInterface"
+                  value="com.apress.springrecipes.weather.WeatherService"/>
+    </bean>
+    <!--
+        <bean name="/WeatherService"
+            class="org.springframework.remoting.caucho.BurlapServiceExporter">
+            <property name="service" ref="weatherService" />
+            <property name="serviceInterface"
+                value="com.apress.springrecipes.weather.WeatherService" />
+        </bean>
+    --><!--
+    <bean name="/WeatherService"
+        class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="weatherService" />
+        <property name="serviceInterface"
+            value="com.apress.springrecipes.weather.WeatherService" />
+    </bean>
+
+
+    -->
+</beans>

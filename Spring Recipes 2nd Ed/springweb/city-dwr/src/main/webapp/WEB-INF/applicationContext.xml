@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.directwebremoting.org/schema/spring-dwr
+        http://www.directwebremoting.org/schema/spring-dwr-2.0.xsd">
+
+    <dwr:configuration/>
+
+    <bean id="cityService"
+          class="com.apress.springrecipes.city.CityServiceImpl">
+        <dwr:remote javascript="CityService">
+            <dwr:include method="findDistance"/>
+        </dwr:remote>
+        <property name="distanceMap">
+            <map>
+                <entry key="New York">
+                    <map>
+                        <entry key="London" value="5574"/>
+                        <entry key="Beijing" value="10976"/>
+                    </map>
+                </entry>
+            </map>
+        </property>
+    </bean>
+</beans>

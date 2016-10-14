@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="cityService"
+          class="com.apress.springrecipes.city.CityServiceImpl">
+        <property name="distanceMap">
+            <map>
+                <entry key="New York">
+                    <map>
+                        <entry key="London" value="5574"/>
+                        <entry key="Beijing" value="10976"/>
+                    </map>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="distanceBean"
+          class="com.apress.springrecipes.city.jsf.DistanceBean"
+          scope="request">
+        <property name="cityService" ref="cityService"/>
+    </bean>
+</beans> 

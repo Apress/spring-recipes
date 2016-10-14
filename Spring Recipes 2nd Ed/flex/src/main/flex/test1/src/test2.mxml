@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" pageTitle="Chat" applicationComplete="setup(event)">
+
+    <mx:Panel title="Chat">
+        <mx:TextArea id="output" height="200"/>
+        <mx:TextInput id="input"/>
+        <mx:ControlBar horizontalAlign="center">
+            <mx:Button id="send" label="Send" click="sendChatMessage(event)"/>
+            <mx:Button id="clear" label="Clear" click="output.text =''"/>
+        </mx:ControlBar>
+    </mx:Panel>
+    <mx:Script>
+        <![CDATA[
+        import mx.messaging.channels.AMFChannel;
+
+        {
+            AMFChannel
+        } // see http://www.springactionscript.org/docs/reference/html/class-inclusion.html
+        ]]>
+    </mx:Script>
+    <mx:Script>
+        <![CDATA[
+
+        import mx.events.FlexEvent;
+        import mx.messaging.Consumer;
+        import mx.messaging.Producer;
+
+        import mx.messaging.events.MessageEvent;
+        import mx.messaging.messages.AsyncMessage;
+
+        import org.springextensions.actionscript.context.support.FlexXMLApplicationContext;
+        import org.springextensions.actionscript.context.support.XMLApplicationContext;
+
+        private var chatProducer : Producer;
+        private var chatConsumer : Consumer;
+
+        private var _applicationContext : XMLApplicationContext;
+
+        [Bindable]
+        [Embed(source="app-context4.xml",mimeType ="application/octet-stream")]
+        public var contextConfig : Class;
+
+        public function setup(fe : FlexEvent) : void
+        {
+            _applicationContext = new FlexXMLApplicationContext();
+            _applicationContext.addEmbeddedConfig(contextConfig);
+            _applicationContext.load();
+
+            chatConsumer = _applicationContext.getObject('consumer') as Consumer;
+            chatConsumer.addEventListener(MessageEvent.MESSAGE, function (msgEvent : MessageEvent) : void {
+                var msg : AsyncMessage = msgEvent.message as AsyncMessage;
+                output.text += msg.body + "\n";
+            });
+            chatConsumer.subscribe();
+
+            chatProducer = _applicationContext.getObject('producer') as Producer;
+            chatProducer.connect();
+        }
+
+        private function sendChatMessage(me : MouseEvent) : void
+        {
+            var msg : AsyncMessage = new AsyncMessage();
+            msg.body = input.text;
+            chatProducer.send(msg);
+            input.text = "";
+        }
+
+
+
+        ]]>
+    </mx:Script>
+
+</mx:Application>

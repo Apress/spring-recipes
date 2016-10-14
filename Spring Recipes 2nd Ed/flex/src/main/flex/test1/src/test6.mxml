@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ this will demonstrate how to use Spring ActionScript
+-->
+<mx:Application
+        xmlns:flexlib="http://code.google.com/p/flexlib/"
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="absolute"
+        preinitialize="onPreInit(event)"
+        creationComplete="onComplete(event)"
+        >
+
+    <mx:Script>
+ 		<![CDATA[
+        import mx.rpc.AbstractOperation;
+        import mx.rpc.remoting.mxml.RemoteObject;
+
+        import com.apress.springrecipes.Person;
+
+        import org.springextensions.actionscript.context.support.FlexXMLApplicationContext;
+        import org.springextensions.actionscript.context.support.XMLApplicationContext;
+
+        import mx.events.FlexEvent;
+        import mx.controls.Alert;
+        import mx.messaging.ChannelSet;
+        import mx.messaging.channels.AMFChannel;
+        import mx.controls.Alert;
+        import mx.rpc.AsyncRequest;
+        import mx.rpc.AsyncToken;
+        import mx.rpc.*;
+        import mx.rpc.events.*;
+        import mx.rpc.events.FaultEvent;
+        import mx.collections.ItemResponder;
+
+        // service references
+        var crmService : RemoteObject;
+
+        private var _contextUrl : String;
+        private var _applicationContext : XMLApplicationContext;
+
+        [Bindable]
+        [Embed(source="app-context2.xml",mimeType ="application/octet-stream")]
+        public var contextConfig : Class;
+
+        public function onPreInit(fe : FlexEvent) : void {
+            _contextUrl = "app-context2.xml";// this.parameters['SpringASContextURL'];
+        }
+
+        private function onFlexXMLApplicationContextComplete(se : Event) : void {
+
+            crmService = _applicationContext.getObject('crmService') as RemoteObject;
+
+            var at : AsyncToken = crmService.howManyPeopleAreLoggedIn();
+            at.addResponder(new AsyncResponder(function(re : ResultEvent, t : AsyncToken) : void {
+                var count : int = re.result as int;
+                Alert.show('the count is ' + count);
+            }, null));
+
+        }
+
+        public function onComplete(fe : FlexEvent) : void {
+            _applicationContext = new FlexXMLApplicationContext();
+            _applicationContext.addConfigLocation(_contextUrl);
+            _applicationContext.addEventListener(Event.COMPLETE, onFlexXMLApplicationContextComplete);
+            _applicationContext.load();
+        }
+ 		]]>
+ 	</mx:Script>
+
+</mx:Application>

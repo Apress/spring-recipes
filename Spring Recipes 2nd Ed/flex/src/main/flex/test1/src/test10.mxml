@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ this will demonstrate how to use Spring ActionScript, Spring BlazeDS with channels and messaging
+ 
+ The next example should probably then demonstrate tying Spring Integration to the BlazeDS channels :-) 
+-->
+<mx:Application
+        xmlns:flexlib="http://code.google.com/p/flexlib/"
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        xmlns:auction="com.apress.springrecipes.auction.components.*"
+        layout="absolute"
+        applicationComplete="onComplete(event)"
+        >
+
+
+    <mx:Model id="loginCredentials">
+        <login>
+            <email></email>
+            <password></password>
+        </login>
+    </mx:Model>
+
+    <mx:Script>
+ 	 	<![CDATA[
+        import com.apress.springrecipes.auction.model.Item;
+
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.messaging.*;
+        import mx.messaging.events.*;
+        import mx.rpc.*;
+        import mx.rpc.events.*;
+        import mx.rpc.remoting.mxml.RemoteObject;
+
+        import org.springextensions.actionscript.context.support.FlexXMLApplicationContext;
+        import org.springextensions.actionscript.context.support.XMLApplicationContext;
+
+        [Bindable]
+        private var items : ArrayCollection;
+
+        [Bindable]
+        [Embed(source="app-context3.xml",mimeType ="application/octet-stream")]
+        public var contextConfig : Class;
+
+        private var auctionService : RemoteObject;
+        private var itemPostedDestinationConsumer : Consumer;
+        private var _applicationContext : XMLApplicationContext;
+        private var imageChoices : Array = 'boat,car,carpet,motorbike'.split(',');
+
+        public function setupLogin(fe : Event) : void
+        {
+            loginCredentials.login.email = null
+            loginCredentials.login.password = null
+        }
+
+        public function postItem(me : MouseEvent) : void
+        {
+            var imgIndex : int = Math.random() * (this.imageChoices.length - 1);
+            var img : String = this.imageChoices[imgIndex];
+
+            auctionService.postItem(email.text, description.text, description.text, parseFloat(basePrice.text), null);
+        }
+
+        public function setupItems(fe : Event) : void
+        {
+
+            layoutGridOfItems();
+        }
+
+        public function login(flexEvent : MouseEvent) : void
+        {
+            // TODO have this authenticate 
+            currentState = 'items';
+        }
+
+        public function onComplete(flexEvent : FlexEvent) : void
+        {
+            _applicationContext = new FlexXMLApplicationContext();
+            _applicationContext.addEmbeddedConfig(contextConfig);
+            _applicationContext.load();
+
+            auctionService = _applicationContext.getObject('auctionService') as RemoteObject;
+            itemPostedDestinationConsumer = _applicationContext.getObject('itemPostedDestinationConsumer') as Consumer;
+            itemPostedDestinationConsumer.addEventListener(MessageEvent.MESSAGE, function(me : MessageEvent) : void {
+                layoutGridOfItems();
+                Alert.show('A new item has arrived!');
+            });
+            itemPostedDestinationConsumer.subscribe();
+
+            currentState = 'login';
+        }
+
+        private function layoutGridOfItems() : void
+        {
+            var fault : Function = function(fault : FaultEvent, t : AsyncToken) : void {
+                Alert.show(fault.fault.toString());
+            };
+            var responder : Function = function(re : ResultEvent, t : AsyncToken) : void {
+                items = re.result as ArrayCollection;
+            };
+
+            auctionService.getItemsForAuction().addResponder(new AsyncResponder(responder, fault));
+        }
+ 	 		
+ 	 	]]>
+ 	 </mx:Script>
+
+    <mx:states>
+        <mx:State enterState="setupItems(event)" name="items">
+            <mx:AddChild>
+                <mx:HBox horizontalAlign="center" verticalAlign="top" width="100%" height="100%">
+                    <mx:Panel title="Post New Item">
+                        <mx:Form>
+
+                            <mx:FormItem label="Description">
+                                <mx:TextInput id="description"/>
+                            </mx:FormItem>
+                            <mx:FormItem label="Seller's Email">
+                                <mx:TextInput id="email"/>
+                            </mx:FormItem>
+                            <mx:FormItem label="Base Price">
+                                <mx:TextInput id="basePrice"/>
+                            </mx:FormItem>
+
+                            <mx:FormItem>
+                                <mx:Button label="Post New Item" click="postItem(event)"/>
+                            </mx:FormItem>
+
+                        </mx:Form>
+                    </mx:Panel>
+                    <mx:Panel title="Items" height="100%" width="100%">
+                        <mx:TileList columnWidth="250" rowHeight="80" width="100%" height="100%" dataProvider="{items}">
+                            <mx:itemRenderer>
+                                <mx:Component>
+                                    <auction:ItemRenderer/>
+                                </mx:Component>
+                            </mx:itemRenderer>
+                        </mx:TileList>
+                    </mx:Panel>
+                </mx:HBox>
+            </mx:AddChild>
+        </mx:State>
+        <mx:State name="login">
+            <mx:AddChild>
+                <mx:HBox horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
+                    <mx:Panel title="Login">
+                        <mx:Form>
+                            <mx:FormItem label="e-mail">
+                                <mx:TextInput text="{loginCredentials.login.email}"/>
+                            </mx:FormItem>
+                            <mx:FormItem label="password">
+                                <mx:TextInput text="{loginCredentials.login.password}"/>
+                            </mx:FormItem>
+                            <mx:FormItem>
+                                <mx:Button label="Login" click="login(event)"/>
+                            </mx:FormItem>
+                        </mx:Form>
+                    </mx:Panel>
+                </mx:HBox>
+            </mx:AddChild>
+        </mx:State>
+    </mx:states>
+
+</mx:Application>

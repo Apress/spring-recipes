@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/util/spring-aop-3.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+    <bean id="myGrid" class="org.gridgain.grid.GridSpringBean" scope="singleton">
+        <property name="configuration">
+            <bean id="grid.cfg" class="org.gridgain.grid.GridConfigurationAdapter" scope="singleton">
+                <property name="topologySpi">
+                    <bean class="org.gridgain.grid.spi.topology.basic.GridBasicTopologySpi">
+                        <property name="localNode" value="false"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+
+    </bean>
+
+    <bean id="interceptor" class="org.gridgain.grid.gridify.aop.spring.GridifySpringAspect"/>
+
+    <bean depends-on="myGrid" id="salutationService" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="autodetectInterfaces" value="false"/>
+        <property name="target">
+            <bean class="com.apress.springrecipes.distributedspring.gridgain.SalutationServiceImpl"/>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>interceptor</value>
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="weatherService"
+          class="com.apress.springrecipes.weather.WeatherServiceImpl"/>
+
+    <bean class="org.springframework.ws.server.endpoint.mapping.PayloadRootAnnotationMethodEndpointMapping"/>
+
+    <bean id="temperatureEndpoint"
+          class="com.apress.springrecipes.weather.TemperatureMarshallingEndpoint">
+        <property name="weatherService" ref="weatherService"/>
+    </bean>
+
+    <bean class="org.springframework.ws.server.endpoint.adapter.GenericMarshallingMethodEndpointAdapter">
+        <property name="marshaller" ref="marshaller"/>
+        <property name="unmarshaller" ref="marshaller"/>
+    </bean>
+
+    <bean id="marshaller"
+          class="org.springframework.oxm.castor.CastorMarshaller">
+        <property name="mappingLocation" value="classpath:mapping.xml"/>
+    </bean>
+
+    <bean id="temperature"
+          class="org.springframework.ws.wsdl.wsdl11.DynamicWsdl11Definition">
+        <property name="builder">
+            <bean class="org.springframework.ws.wsdl.wsdl11.builder.XsdBasedSoap11Wsdl4jDefinitionBuilder">
+                <property name="schema" value="/WEB-INF/temperature.xsd"/>
+                <property name="portTypeName" value="Weather"/>
+                <property name="locationUri"
+                          value="http://localhost:8080/weather-remoting/services"/>
+            </bean>
+        </property>
+    </bean>
+</beans>

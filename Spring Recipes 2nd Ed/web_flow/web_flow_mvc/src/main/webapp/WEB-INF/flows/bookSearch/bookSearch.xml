@@ -1,0 +1,48 @@
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+    <secured attributes="ROLE_USER"/>
+
+    <view-state id="bookCriteria">
+        <on-render>
+            <evaluate expression="bookCriteriaAction.setupForm"/>
+        </on-render>
+        <transition on="search" to="searchBook">
+            <evaluate expression="bookCriteriaAction.bindAndValidate"/>
+        </transition>
+    </view-state>
+
+    <action-state id="searchBook">
+        <evaluate expression="bookService.search(bookCriteria)"
+                  result="flowScope.books"/>
+        <transition on="success" to="checkResultSize"/>
+    </action-state>
+
+    <decision-state id="checkResultSize">
+        <if test="books.size() == 1" then="extractResult"
+            else="bookList"/>
+    </decision-state>
+
+    <action-state id="extractResult">
+        <set name="flowScope.book" value="books.get(0)"/>
+        <transition on="success" to="bookDetails"/>
+    </action-state>
+
+    <view-state id="bookList">
+        <transition on="select" to="bookDetails">
+            <evaluate
+                    expression="bookService.findByIsbn(requestParameters.isbn)"
+                    result="flowScope.book"/>
+        </transition>
+        <transition on="newSearch" to="newSearch"/>
+    </view-state>
+
+    <subflow-state id="bookDetails" subflow="bookDetails">
+        <input name="book" value="flowScope.book"/>
+        <transition on="newSearch" to="newSearch"/>
+    </subflow-state>
+
+    <end-state id="newSearch"/>
+</flow>

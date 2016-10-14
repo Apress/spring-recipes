@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+        xmlns="http://www.springframework.org/schema/batch"
+        xmlns:beans="http://www.springframework.org/schema/beans"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:task="http://www.springframework.org/schema/task"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:p="http://www.springframework.org/schema/p"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:util="http://www.springframework.org/schema/util"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan annotation-config="true" base-package="com.apress.springrecipes.springbatch"/>
+
+    <task:scheduler id="scheduler" pool-size="10"/>
+    <task:executor id="executor" pool-size="10"/>
+
+    <task:annotation-driven scheduler="scheduler" executor="executor"/>
+
+
+    <beans:bean
+            class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+            p:location="batch.properties"
+            p:ignoreUnresolvablePlaceholders="true"/>
+
+    <beans:bean
+            id="dataSource"
+            class="org.apache.commons.dbcp.BasicDataSource"
+            destroy-method="close"
+            p:driverClassName="${dataSource.driverClassName}"
+            p:username="${dataSource.username}"
+            p:password="${dataSource.password}"
+            p:url="${dataSource.url}"/>
+
+    <beans:bean
+            id="transactionManager"
+            class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+            p:dataSource-ref="dataSource"/>
+
+    <beans:bean
+            id="jobRegistry"
+            class="org.springframework.batch.core.configuration.support.MapJobRegistry"/>
+
+    <beans:bean
+            id="jobLauncher"
+            class="org.springframework.batch.core.launch.support.SimpleJobLauncher"
+            p:jobRepository-ref="jobRepository"/>
+
+    <beans:bean
+            id="jobRegistryBeanPostProcessor"
+            class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor"
+            p:jobRegistry-ref="jobRegistry"/>
+
+    <beans:bean
+            id="jobRepository"
+            class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean"
+            p:dataSource-ref="dataSource"
+            p:transactionManager-ref="transactionManager"/>
+
+
+</beans:beans>

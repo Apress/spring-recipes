@@ -1,0 +1,124 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+    <context:load-time-weaver />
+
+    <context:spring-configured />
+
+    <context:annotation-config />
+
+    <!--
+    <aop:aspectj-autoproxy />
+    -->
+
+    <aop:config>
+        <aop:pointcut id="loggingOperation" expression=
+            "within(com.apress.springrecipes.calculator.ArithmeticCalculator+) || within(com.apress.springrecipes.calculator.UnitCalculator+)" />
+
+        <aop:pointcut id="validationOperation" expression=
+            "within(com.apress.springrecipes.calculator.ArithmeticCalculator+) || within(com.apress.springrecipes.calculator.UnitCalculator+)" />
+
+        <aop:aspect id="loggingAspect" ref="calculatorLoggingAspect">
+            <aop:before pointcut-ref="loggingOperation"
+                method="logBefore" />
+
+            <aop:after-returning pointcut-ref="loggingOperation"
+                returning="result" method="logAfterReturning" />
+
+            <aop:after-throwing pointcut-ref="loggingOperation"
+                throwing="e" method="logAfterThrowing" />
+
+            <aop:around pointcut-ref="loggingOperation"
+                method="logAround" />
+        </aop:aspect>
+
+        <aop:aspect id="validationAspect" ref="calculatorValidationAspect">
+            <aop:before pointcut-ref="validationOperation"
+                method="validateBefore" />
+        </aop:aspect>
+
+        <aop:aspect id="introduction" ref="calculatorIntroduction">
+            <aop:declare-parents
+                types-matching=
+                    "com.apress.springrecipes.calculator.ArithmeticCalculatorImpl"
+                implement-interface=
+                    "com.apress.springrecipes.calculator.MaxCalculator"
+                default-impl=
+                    "com.apress.springrecipes.calculator.MaxCalculatorImpl" />
+
+            <aop:declare-parents
+                types-matching=
+                    "com.apress.springrecipes.calculator.ArithmeticCalculatorImpl"
+                implement-interface=
+                    "com.apress.springrecipes.calculator.MinCalculator"
+                default-impl=
+                    "com.apress.springrecipes.calculator.MinCalculatorImpl" />
+
+            <aop:declare-parents
+                types-matching=
+                    "com.apress.springrecipes.calculator.*CalculatorImpl"
+                implement-interface=
+                    "com.apress.springrecipes.calculator.Counter"
+                default-impl=
+                    "com.apress.springrecipes.calculator.CounterImpl" />
+
+            <aop:after pointcut=
+                "execution(* com.apress.springrecipes.calculator.*Calculator.*(..)) and this(counter)"
+                method="increaseCount" />
+        </aop:aspect>
+    </aop:config>
+
+    <bean id="calculatorLoggingAspect"
+        class="com.apress.springrecipes.calculator.CalculatorLoggingAspect" />
+
+    <bean id="calculatorValidationAspect"
+        class="com.apress.springrecipes.calculator.CalculatorValidationAspect" />
+
+    <bean id="calculatorIntroduction"
+        class="com.apress.springrecipes.calculator.CalculatorIntroduction" />
+
+    <bean class="com.apress.springrecipes.calculator.ComplexCachingAspect"
+        factory-method="aspectOf">
+        <property name="cache">
+            <map>
+                <entry key="2,3">
+                    <bean class="com.apress.springrecipes.calculator.Complex">
+                        <constructor-arg value="2" />
+                        <constructor-arg value="3" />
+                    </bean>
+                </entry>
+                <entry key="3,5">
+                    <bean class="com.apress.springrecipes.calculator.Complex">
+                        <constructor-arg value="3" />
+                        <constructor-arg value="5" />
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="arithmeticCalculator"
+        class="com.apress.springrecipes.calculator.ArithmeticCalculatorImpl" />
+
+    <bean id="unitCalculator"
+        class="com.apress.springrecipes.calculator.UnitCalculatorImpl" />
+
+    <bean id="complexCalculator"
+        class="com.apress.springrecipes.calculator.ComplexCalculatorImpl" />
+
+    <bean id="complexFormatter"
+        class="com.apress.springrecipes.calculator.ComplexFormatter">
+        <property name="pattern" value="(a + bi)" />
+    </bean>
+
+    <bean id="complex" class="com.apress.springrecipes.calculator.Complex"
+        scope="prototype" />
+</beans>

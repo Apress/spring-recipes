@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="dataSource"
+        class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName"
+            value="org.apache.derby.jdbc.ClientDriver" />
+        <property name="url"
+            value="jdbc:derby://localhost:1527/bank;create=true" />
+        <property name="username" value="app" />
+        <property name="password" value="app" />
+    </bean>
+
+    <bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="accountDao"
+        class="com.apress.springrecipes.bank.JdbcAccountDao">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="accountService"
+        class="com.apress.springrecipes.bank.AccountServiceImpl">
+        <constructor-arg ref="accountDao" />
+    </bean>
+</beans>

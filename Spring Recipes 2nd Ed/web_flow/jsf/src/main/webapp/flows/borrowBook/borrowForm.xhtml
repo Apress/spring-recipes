@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:sf="http://www.springframework.org/tags/faces"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Borrow Form</ui:define>
+
+    <ui:define name="content">
+        <h:form>
+            <h:panelGrid columns="2">
+                <h:outputLabel for="isbn">ISBN</h:outputLabel>
+                <sf:clientTextValidator required="true" regExp="[0-9]{10}">
+                    <h:inputText id="isbn" value="#{borrowingRecord.isbn}"/>
+                </sf:clientTextValidator>
+
+                <h:outputLabel for="borrowDate">Borrow Date</h:outputLabel>
+                <sf:clientDateValidator required="true">
+                    <h:inputText id="borrowDate" value="#{borrowingRecord.borrowDate}">
+                        <f:convertDateTime pattern="yyyy-MM-dd"/>
+                    </h:inputText>
+                </sf:clientDateValidator>
+
+                <h:outputLabel for="returnDate">Return Date</h:outputLabel>
+                <sf:clientDateValidator required="true">
+                    <h:inputText id="returnDate" value="#{borrowingRecord.returnDate}">
+                        <f:convertDateTime pattern="yyyy-MM-dd"/>
+                    </h:inputText>
+                </sf:clientDateValidator>
+
+                <h:outputLabel for="reader">Reader</h:outputLabel>
+                <sf:clientTextValidator required="true">
+                    <h:inputText id="reader" value="#{borrowingRecord.reader}"/>
+                </sf:clientTextValidator>
+            </h:panelGrid>
+
+            <sf:validateAllOnClick>
+                <h:commandButton value="Proceed" action="proceed"/>
+            </sf:validateAllOnClick>
+
+            <h:commandButton value="Cancel" action="cancel"/>
+        </h:form>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:simple="http://cxf.apache.org/simple" xmlns:soap="http://cxf.apache.org/bindings/soap"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/aop  http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+
+       http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+       http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd
+       http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/soap.xsd
+       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+      ">
+
+    <!--
+    These are here as reference - CXF supports a *lot* of use-cases! 
+    <import resource="classpath:META-INF/cxf/cxf-extension-xml.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-jaxws.xml"/>
+    -->
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
+
+    <bean id="weatherServiceImpl" class="com.apress.springrecipes.weather.WeatherServiceImpl"/>
+
+    <jaxws:endpoint implementor="#weatherServiceImpl" address="/weatherService">
+        <jaxws:binding>
+            <soap:soapBinding style="document" use="literal" version="1.1"/>
+        </jaxws:binding>
+    </jaxws:endpoint>
+
+</beans>

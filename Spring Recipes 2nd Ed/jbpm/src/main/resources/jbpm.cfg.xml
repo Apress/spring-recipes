@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jbpm-configuration>
+    <import resource="jbpm.default.cfg.xml"/>
+    <import resource="jbpm.jpdl.cfg.xml"/>
+    <import resource="jbpm.identity.cfg.xml"/>
+    <import resource="jbpm.tx.spring.cfg.xml"/>
+
+    <process-engine-context>
+        <repository-service/>
+        <repository-cache/>
+        <execution-service/>
+        <history-service/>
+        <management-service/>
+        <identity-service/>
+        <task-service/>
+        <command-service>
+            <retry-interceptor/>
+            <environment-interceptor/>
+            <spring-transaction-interceptor/>
+        </command-service>
+        <script-manager default-expression-language="juel" default-script-language="juel" read-contexts="execution, environment, process-engine, spring" write-context="">
+            <script-language name="juel" factory="org.jbpm.pvm.internal.script.JuelScriptEngineFactory"/>
+        </script-manager>
+        <id-generator/>
+        <types resource="jbpm.variable.types.xml"/>
+        <address-resolver/>
+        <business-calendar>
+            <monday hours="9:00-12:00 and 12:30-17:00"/>
+            <tuesday hours="9:00-12:00 and 12:30-17:00"/>
+            <wednesday hours="9:00-12:00 and 12:30-17:00"/>
+            <thursday hours="9:00-12:00 and 12:30-17:00"/>
+            <friday hours="9:00-12:00 and 12:30-17:00"/>
+            <holiday period="01/07/2008 - 31/08/2008"/>
+        </business-calendar>
+    </process-engine-context>
+    <transaction-context>
+        <repository-session/>
+        <db-session/>
+        <message-session/>
+        <timer-session/>
+        <history-session/>
+        <hibernate-session current="true"/>
+    </transaction-context>
+</jbpm-configuration>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<objects xmlns="http://www.springactionscript.org/schema/objects"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.springactionscript.org/schema/objects
+						http://www.springactionscript.org/schema/objects/spring-actionscript-objects-1.0.xsd">
+
+
+    <object class="org.springextensions.actionscript.stage.DefaultAutowiringStageProcessor"
+            id="defaultAutowiringStageProcessor"/>
+
+    <object class="org.springextensions.actionscript.ioc.factory.config.flex.ApplicationPropertiesResolver"/>
+
+    <object id="auctionService" class="mx.rpc.remoting.mxml.RemoteObject">
+        <property name="endpoint" value="http://localhost:8080/mb/amf"/>
+        <property name="showBusyCursor" value="true"/>
+        <property name="destination" value="auctionService"/>
+    </object>
+
+
+    <object id="channelSet" class="mx.messaging.ChannelSet">
+        <property name="channels">
+            <array>
+                <object class="mx.messaging.channels.AMFChannel">
+                    <constructor-arg value="my-amf"/>
+                    <constructor-arg value="http://localhost:8080/mb/amf"/>
+                </object>
+            </array>
+        </property>
+    </object>
+
+    <object abstract="true" id="abstractConsumer" class="mx.messaging.Consumer" scope="prototype">
+        <property name="channelSet" ref="channelSet"/>
+    </object>
+
+    <object id="itemPostedDestinationConsumer" parent="abstractConsumer">
+        <property name="destination" value="itemPostedDestination"/>
+    </object>
+
+</objects>

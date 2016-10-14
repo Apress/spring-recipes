@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="DemoProcess" xmlns="http://jbpm.org/4.0/jpdl">
+
+    <start g="100,16,48,48">
+        <transition g="-5,-22" name="to fork" to="fork1"/>
+    </start>
+
+    <java expr="#{echoService}" g="16,176,92,52" method="sayHello" name="echo">
+        <transition g="-65,-22" name="to accept" to="join1"/>
+    </java>
+
+    <java expr="#{echoService}" g="140,176,92,52" method="sayHelloWithExecution" name="echo2">
+        <arg>
+            <env type="org.jbpm.pvm.internal.history.HistorySession"/>
+        </arg>
+        <transition g="-70,-22" name="accept" to="join1"/>
+    </java>
+    <state g="63,340,122,52" name="accept">
+        <transition g="-63,-22" name="transition" to="grant access"/>
+        <transition g="-63,-22" name="to timeout" to="timed out">
+            <timer duedate="10 seconds"/>
+            <timer duedate="10 seconds"/>
+            <timer duedate="10 seconds"/>
+        </transition>
+    </state>
+    <state g="16,424,92,52" name="grant access">
+        <transition g="-54,-22" name="transition" to="finish"/>
+    </state>
+    <state g="206,417,92,52" name="timed out">
+        <transition g="-54,-22" name="transition" to="timed out2">
+            <timer duedate="20 seconds"/>
+            <timer duedate="20 seconds"/>
+            <timer duedate="20 seconds"/>
+            <timer duedate="20 seconds"/>
+        </transition>
+    </state>
+    <state g="174,503,92,52" name="timed out2">
+        <transition g="-54,-22" name="transition" to="timed out3">
+            <timer duedate="30 seconds"/>
+            <timer duedate="30 seconds"/>
+            <timer duedate="30 seconds"/>
+            <timer duedate="30 seconds"/>
+        </transition>
+    </state>
+    <state g="89,592,92,52" name="timed out3">
+        <transition g="-54,-22" name="transition" to="finish"/>
+    </state>
+
+    <end g="38,676,48,48" name="finish"/>
+    <fork g="100,96,48,48" name="fork1">
+        <transition g="-53,-22" name="to echo" to="echo"/>
+        <transition g="-61,-22" name="to echo2" to="echo2"/>
+    </fork>
+    <join g="221,283,48,48" multiplicity="2" name="join1">
+        <transition name="to accept" to="accept" g="-65,-22"/>
+    </join>
+
+</process>

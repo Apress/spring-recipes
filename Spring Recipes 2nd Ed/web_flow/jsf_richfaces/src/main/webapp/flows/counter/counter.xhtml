@@ -1,0 +1,22 @@
+<ui:composition template="/WEB-INF/template/default.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:jawr="https://jawr.dev.java.net/jsf/facelets"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich">
+    <ui:define name="title"> Update Count </ui:define>
+    <ui:define name="content">
+        <f:view>
+            <h:form id="counter">
+                <a4j:outputPanel id="countFragment">
+                    <h:outputText value="#{counterBean.count}"/>
+                </a4j:outputPanel>
+                <br/>
+                <a4j:commandLink id="update" value="Update Count" action="updateCount"
+                                 reRender="#{flowRenderFragments}"/>
+            </h:form>
+        </f:view>
+    </ui:define>
+</ui:composition>

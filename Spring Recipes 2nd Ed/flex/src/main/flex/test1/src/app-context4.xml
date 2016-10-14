@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<objects xmlns="http://www.springactionscript.org/schema/objects"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+         http://www.springactionscript.org/schema/objects
+         http://www.springactionscript.org/schema/objects/spring-actionscript-objects-1.0.xsd">
+
+    <object class="org.springextensions.actionscript.stage.DefaultAutowiringStageProcessor"
+            id="defaultAutowiringStageProcessor"/>
+    <object class="org.springextensions.actionscript.ioc.factory.config.flex.ApplicationPropertiesResolver"/>
+
+    <object id="consumer" class="mx.messaging.Consumer" scope="prototype">
+        <property name="channelSet" ref="channelSet"/>
+        <property name="destination" value="chatDestination"/>
+    </object>
+
+    <object id="producer" class="mx.messaging.Producer" scope="prototype">
+        <property name="channelSet" ref="channelSet"/>
+        <property name="destination" value="chatDestination"/>
+    </object>
+
+
+    <object id="channelSet" class="mx.messaging.ChannelSet">
+        <property name="channels">
+            <array>
+                <object class="mx.messaging.channels.AMFChannel">
+                    <constructor-arg value="my-amf"/>
+                    <constructor-arg value="http://localhost:8080/mb/amf"/>
+                </object>
+            </array>
+        </property>
+    </object>
+
+</objects>

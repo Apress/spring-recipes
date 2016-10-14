@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        width="400" height="300"
+        >
+
+    <mx:Script>
+	 	<![CDATA[
+        import org.springextensions.actionscript.context.IApplicationContext;
+        import org.as3commons.lang.Assert;
+
+        import mx.events.FlexEvent;
+        import mx.rpc.remoting.RemoteObject;
+        import mx.rpc.*;
+        import mx.rpc.events.*;
+        import mx.controls.*;
+
+        [Autowired(name = "auctionService")]
+        public var auctionService : RemoteObject;
+
+        private function click(evt : Event) : void {
+            // TODO build a form for positing items and use this service to make the invocation
+            auctionService.getItemsForAuction().addResponder(new AsyncResponder(function(re : ResultEvent, t : AsyncToken) : void {
+                Alert.show('got al itesm for auction, having length ' + re.result.length)
+            }, null));
+
+        }
+		 	
+	 	]]>
+	 </mx:Script>
+
+    <mx:Label click="click(event)" text="Hello World"/>
+
+</mx:Canvas>

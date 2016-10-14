@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ this will demonstrate how to use Spring ActionScript, Spring BlazeDS with channels and messaging
+ 
+ The next example should probably then demonstrate tying Spring Integration to the BlazeDS channels :-) 
+-->
+<mx:Application
+        xmlns:flexlib="http://code.google.com/p/flexlib/"
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        xmlns:auction="com.apress.springrecipes.auction.*"
+
+        layout="absolute"
+        creationComplete="onComplete(event)"
+
+        >
+
+
+    <mx:Script>
+ 		<![CDATA[
+        import org.springextensions.actionscript.ioc.factory.config.flex.ApplicationPropertiesResolver;
+        import org.springextensions.actionscript.domain.util.NamedUtil;
+        import org.springextensions.actionscript.utils.ApplicationUtils;
+
+        import mx.collections.errors.ItemPendingError;
+        import mx.messaging.messages.IMessage;
+        import mx.rpc.AbstractOperation;
+        import mx.rpc.remoting.mxml.RemoteObject;
+
+        import com.apress.springrecipes.Person;
+
+        import org.springextensions.actionscript.context.support.FlexXMLApplicationContext;
+        import org.springextensions.actionscript.context.support.XMLApplicationContext;
+
+        import mx.events.FlexEvent;
+        import mx.controls.Alert;
+        import mx.messaging.ChannelSet;
+        import mx.messaging.channels.AMFChannel;
+        import mx.controls.Alert;
+        import mx.rpc.AsyncRequest;
+        import mx.rpc.AsyncToken;
+        import mx.rpc.*;
+        import mx.rpc.events.*;
+        import mx.rpc.events.FaultEvent;
+        import mx.collections.ItemResponder;
+        import mx.messaging.*;
+        import mx.messaging.messages.*;
+        import mx.messaging.events.*;
+
+        [Bindable]
+        [Embed(source="app-context3.xml",mimeType ="application/octet-stream")]
+        public var contextConfig : Class;
+
+        private var auctionService : RemoteObject;
+        private var itemPostedDestinationConsumer : Consumer;
+        private var _applicationContext : XMLApplicationContext;
+
+        public function onComplete(fe : FlexEvent) : void {
+            _applicationContext = new FlexXMLApplicationContext();
+            _applicationContext.addEmbeddedConfig(contextConfig);
+            _applicationContext.addEventListener(Event.COMPLETE,
+                    function (se : Event) : void {
+
+                        itemPostedDestinationConsumer = _applicationContext.getObject('itemPostedDestinationConsumer') as Consumer;
+                        itemPostedDestinationConsumer.addEventListener(MessageEvent.MESSAGE, function(me : MessageEvent) : void {
+                            var msg : IMessage = me.message;
+                            Alert.show('From main frame ' + msg.body.itemId + ':' + msg.body._description + ':' + msg.body._sellerEmail + ':' + msg.body._basePrice);
+                        });
+                        itemPostedDestinationConsumer.subscribe();
+
+                    }
+                    );
+            _applicationContext.load();
+
+        }
+ 		]]>
+ 	</mx:Script>
+
+
+    <auction:PostItem/>
+</mx:Application>

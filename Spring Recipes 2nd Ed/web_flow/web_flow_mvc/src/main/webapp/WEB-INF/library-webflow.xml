@@ -1,0 +1,71 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/webflow-config
+        http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd">
+
+    <webflow:flow-builder-services id="flowBuilderServices"
+                                   development="true" view-factory-creator="flowResourceFlowViewResolver"/>
+
+    <bean id="flowResourceFlowViewResolver"
+          class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">
+        <property name="useSpringBeanBinding" value="true"/>
+
+    </bean>
+
+    <webflow:flow-executor id="flowExecutor">
+        <webflow:flow-execution-listeners>
+            <webflow:listener ref="securityFlowExecutionListener"/>
+            <webflow:listener ref="jpaFlowExecutionListener"/>
+        </webflow:flow-execution-listeners>
+    </webflow:flow-executor>
+
+    <webflow:flow-registry flow-builder-services="flowBuilderServices"
+                           id="flowRegistry" base-path="/WEB-INF/flows/">
+        <webflow:flow-location path="/welcome/welcome.xml"/>
+        <webflow:flow-location path="/bookSearch/bookSearch.xml"/>
+        <webflow:flow-location path="/bookDetails/bookDetails.xml"/>
+        <webflow:flow-location path="/borrowBook/borrowBook.xml"/>
+    </webflow:flow-registry>
+
+
+    <bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+        <property name="flowExecutor" ref="flowExecutor"/>
+    </bean>
+
+    <bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+        <property name="flowRegistry" ref="flowRegistry"/>
+        <property name="order" value="0"/>
+    </bean>
+
+    <!--  listeners  -->
+    <bean id="securityFlowExecutionListener"
+          class="org.springframework.webflow.security.SecurityFlowExecutionListener"/>
+
+    <bean id="jpaFlowExecutionListener"
+          class="org.springframework.webflow.persistence.JpaFlowExecutionListener">
+        <constructor-arg ref="entityManagerFactory"/>
+        <constructor-arg ref="transactionManager"/>
+    </bean>
+
+    <!--  actions -->
+    <bean id="bookCriteriaAction" class="org.springframework.webflow.action.FormAction">
+        <property name="formObjectClass"
+                  value="com.apress.springrecipes.library.domain.BookCriteria"/>
+        <property name="propertyEditorRegistrar">
+            <bean class="com.apress.springrecipes.library.web.PropertyEditors"/>
+        </property>
+    </bean>
+
+
+    <bean id="borrowBookAction" class="org.springframework.webflow.action.FormAction">
+        <property name="formObjectClass"
+                  value="com.apress.springrecipes.library.domain.BorrowingRecord"/>
+        <property name="propertyEditorRegistrar">
+            <bean class="com.apress.springrecipes.library.web.PropertyEditors"/>
+        </property>
+    </bean>
+
+</beans>

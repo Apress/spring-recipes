@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        applicationComplete="setup(event)">
+
+    <mx:Script>
+        <![CDATA[
+        import com.apress.springrecipes.auction.model.Item;
+
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.rpc.AsyncResponder;
+        import mx.rpc.AsyncToken;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.remoting.RemoteObject;
+
+        private function setup(evt : FlexEvent) : void
+        {
+
+            var auctionService : RemoteObject = new RemoteObject();
+            auctionService.endpoint = 'http://localhost:8080/mb/amf';
+            auctionService.showBusyCursor = true;
+            auctionService.destination = 'auctionService';
+
+            var resultHandler : Function = function(resultEvent : ResultEvent, asyncToken : AsyncToken) {
+                Alert.show('result = ' + resultEvent.result);
+
+                var acOfItems : ArrayCollection = resultEvent.result as ArrayCollection;
+                for each(var item : Item in acOfItems)
+                    Alert.show('item.id = ' + item.id + '; item.description=' + item.description);
+
+            };
+            var faultHandler : Function = function(faultEvent : FaultEvent, asyncToken : AsyncToken) {
+                Alert.show('fault = ' + faultEvent.fault);
+            };
+            auctionService.getItemsForAuction().addResponder(new AsyncResponder(resultHandler, faultHandler));
+        }
+        ]]>
+    </mx:Script>
+</mx:Application>

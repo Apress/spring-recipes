@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tc:tc-config xsi:schemaLocation="http://www.terracotta.org/schema/terracotta-5.xsd"
+              xmlns:tc="http://www.terracotta.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <servers>
+        <server host="%i" name="server1">
+            <dso-port>9510</dso-port>
+            <jmx-port>9520</jmx-port>
+            <data>target/terracotta/server/data</data>
+            <logs>target/terracotta/server/logs</logs>
+            <statistics>target/terracotta/server/statistics</statistics>
+        </server>
+        <update-check>
+            <enabled>true</enabled>
+        </update-check>
+    </servers>
+    <system>
+        <configuration-model>development</configuration-model>
+    </system>
+    <clients>
+        <logs>target/terracotta/clients/logs/%(tc.nodeName)</logs>
+        <statistics>target/terracotta/clients/statistics/%(tc.nodeName)</statistics>
+    </clients>
+    <application>
+
+        <dso>
+            <instrumented-classes>
+                <include>
+                    <class-expression>
+                        com.apress.springrecipes.distributedspring.terracotta.customerconsole.entity.*
+                    </class-expression>
+                </include>
+                <include>
+                    <class-expression>
+                        com.apress.springrecipes.distributedspring.terracotta.customerconsole.service.CustomerServiceImpl
+                    </class-expression>
+                </include>
+            </instrumented-classes>
+            <roots>
+                <root>
+                    <root-name>customers</root-name>
+                    <field-name>
+                        com.apress.springrecipes.distributedspring.terracotta.customerconsole.service.CustomerServiceImpl.customers
+                    </field-name>
+                </root>
+            </roots>
+            <locks>
+                <autolock>
+                    <method-expression>*
+                        com.apress.springrecipes.distributedspring.terracotta.customerconsole.service.CustomerServiceImpl.*(..)
+                    </method-expression>
+                </autolock>
+            </locks>
+        </dso>
+    </application>
+
+
+</tc:tc-config>

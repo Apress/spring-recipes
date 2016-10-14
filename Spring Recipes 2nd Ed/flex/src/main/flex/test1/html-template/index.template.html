@@ -1,0 +1,21 @@
+<html>
+<head>
+    <title>Auction</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <style>
+        body, html {
+            padding: 0;
+            margin: 0
+        }
+    </style>
+    <script type="text/javascript" src="swfobject/swfobject.js"></script>
+    <script type="text/javascript">
+        var flashVars = { currentUrl:'http://localhost:8080/flex' }; // this is your chance to parameterize the execution of the flash code
+        swfobject.embedSWF("${swf}.swf", "auction", "${width}", "${height}", "9.0.0",
+                "swfobject/expressInstall.swf", flashVars);
+    </script>
+</head>
+<body>
+<div id="auction"></div>
+</body>
+</html> 

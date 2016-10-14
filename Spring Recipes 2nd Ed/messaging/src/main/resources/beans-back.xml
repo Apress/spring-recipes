@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/jms
+        http://www.springframework.org/schema/jms/spring-jms-3.0.xsd">
+
+    <bean id="connectionFactory"
+          class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://localhost:61616"/>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.jms.connection.JmsTransactionManager">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+
+    <bean id="mailMessageConverter" class="com.apress.springrecipes.post.MailMessageConverter"/>
+
+    <bean id="mailListener"
+          class="com.apress.springrecipes.post.MailListener"/>
+
+    <jms:listener-container
+            connection-factory="connectionFactory"
+            transaction-manager="transactionManager"
+            message-converter="mailMessageConverter">
+        <jms:listener
+                destination="mail.queue" ref="mailListener" method="displayMail"/>
+    </jms:listener-container>
+</beans>

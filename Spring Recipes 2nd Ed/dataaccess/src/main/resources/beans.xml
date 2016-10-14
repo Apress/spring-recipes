@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="org.apache.derby.jdbc.ClientDriver"/>
+        <property name="url" value="jdbc:derby://localhost:1527/vehicle;create=true"/>
+        <property name="username" value="app"/>
+        <property name="password" value="app"/>
+        <property name="initialSize" value="2"/>
+        <property name="maxActive" value="5"/>
+    </bean>
+
+    <bean id="vehicleDao"
+          class="com.apress.springrecipes.vehicle.JdbcVehicleDao">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="vehicleInsertOperation"
+          class="com.apress.springrecipes.vehicle.VehicleInsertOperation">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="vehicleQueryOperation"
+          class="com.apress.springrecipes.vehicle.VehicleQueryOperation">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="vehicleCountOperation"
+          class="com.apress.springrecipes.vehicle.VehicleCountOperation">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+</beans>

@@ -1,0 +1,9 @@
+ 
+ http://www.jboss.org/index.html?module=bb&op=viewtopic&t=159013 | interesting walk through of how somebody got their version working.. 
+ http://www.inze.be/andries/ | the guy who's responsible for the original jBPM implementation
+ http://docs.jboss.com/jbpm/v4.0/devguide/html_single/#springIntegration | the dev guide covering mr andries' work on integrating jbpm and Spring
+ http://www.slideshare.net/ainze/spring-integration-with-jbpm4 slideshow by author of itnegration 
+ 
+  
+  
+  

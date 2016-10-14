@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<flex-config xmlns="http://www.adobe.com/2006/flex-confg">
+    <!--
+      To use this, go to the project properties and under flex comppiler settings add: -load-config=config/config.xml
+     -->
+    <compiler>
+
+    </compiler>
+</flex-config>

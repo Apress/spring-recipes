@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ this will demonstrate how to use Spring ActionScript, Spring BlazeDS with channels and messaging
+ 
+ The next example should probably then demonstrate tying Spring Integration to the BlazeDS channels :-) 
+-->
+<mx:Application
+        xmlns:flexlib="http://code.google.com/p/flexlib/"
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="absolute"
+        preinitialize="onPreInit(event)"
+        creationComplete="onComplete(event)"
+        >
+    <mx:ChannelSet id="cs">
+        <mx:AMFChannel url="http://localhost:8080/flex/mb/amf" channelFault="Alert.show(event.toString())"/>
+    </mx:ChannelSet>
+    <mx:Consumer id="itemPostedConsumer" channelSet="{cs}" destination="itemPostedDestination"
+                 message="onMessage(event.message )"/>
+
+    <mx:Script>
+ 		<![CDATA[
+        import org.springextensions.actionscript.ioc.factory.config.flex.ApplicationPropertiesResolver;
+        import org.springextensions.actionscript.domain.util.NamedUtil;
+        import org.springextensions.actionscript.utils.ApplicationUtils;
+
+        import mx.collections.errors.ItemPendingError;
+        import mx.messaging.messages.IMessage;
+        import mx.rpc.AbstractOperation;
+        import mx.rpc.remoting.mxml.RemoteObject;
+
+        import com.apress.springrecipes.Person;
+
+        import org.springextensions.actionscript.context.support.FlexXMLApplicationContext;
+        import org.springextensions.actionscript.context.support.XMLApplicationContext;
+
+        import mx.events.FlexEvent;
+        import mx.controls.Alert;
+        import mx.messaging.ChannelSet;
+        import mx.messaging.channels.AMFChannel;
+        import mx.controls.Alert;
+        import mx.rpc.AsyncRequest;
+        import mx.rpc.AsyncToken;
+        import mx.rpc.*;
+        import mx.rpc.events.*;
+        import mx.rpc.events.FaultEvent;
+        import mx.collections.ItemResponder;
+
+        // service references
+        var auctionService : RemoteObject;
+
+        private var _contextUrl : String;
+        private var _applicationContext : XMLApplicationContext;
+
+        public function onMessage(msg : IMessage) : void
+        {
+            Alert.show(msg.body.itemId + ':' + msg.body._description + ':' + msg.body._sellerEmail + ':' + msg.body._basePrice);
+        }
+
+        [Bindable]
+        [Embed(source="app-context2.xml",mimeType ="application/octet-stream")]
+        public var contextConfig : Class;
+
+        public function onPreInit(fe : FlexEvent) : void {
+            _contextUrl = "app-context2.xml";// this.parameters['SpringASContextURL'];
+
+        }
+
+        private function onFlexXMLApplicationContextComplete(se : Event) : void {
+            //	itemPostedConsumer.subscribe( 'jlong' + 22 ) ;
+
+            itemPostedConsumer.subscribe();
+
+            auctionService = _applicationContext.getObject('auctionService') as RemoteObject;
+
+            var at : AsyncToken = auctionService.postItem('josh@joshlong.com', 'Ferrari', 'My Description', 232.23, 2222.00)
+            at.addResponder(new AsyncResponder(function(re : ResultEvent, t : AsyncToken) : void {
+
+                var rex : Object = re.result;
+                // we can use GaS to generate As proxies of the remote objects
+                // but we don't need to. Here, we can also just treat the object using expando properties
+                // and invoke  / call properties as a regular POAO
+
+                Alert.show('posted something!' + rex._id + '=' + rex._sellerEmail);
+            }, null));
+
+        }
+
+        public function onComplete(fe : FlexEvent) : void {
+            _applicationContext = new FlexXMLApplicationContext();
+            _applicationContext.addEmbeddedConfig(contextConfig); //_contextUrl);
+            _applicationContext.addEventListener(Event.COMPLETE, onFlexXMLApplicationContextComplete);
+            _applicationContext.load();
+
+        }
+ 		]]>
+ 	</mx:Script>
+
+</mx:Application>

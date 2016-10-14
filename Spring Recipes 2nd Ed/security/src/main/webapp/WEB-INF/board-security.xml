@@ -1,0 +1,46 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+   <global-method-security secured-annotations="enabled"
+      access-decision-manager-ref="aclAccessDecisionManager" />
+
+
+    <http access-decision-manager-ref="accessDecisionManager">
+        <intercept-url pattern="/messageList*"
+            access="ROLE_USER,ROLE_GUEST" />
+        <intercept-url pattern="/messagePost*" access="ROLE_USER" />
+        <intercept-url pattern="/messageDelete*" access="ROLE_ADMIN,IP_LOCAL_HOST" />
+        <anonymous username="guest" granted-authority="ROLE_GUEST"/>
+        <form-login login-page="/login.jsp" default-target-url="/messageList"
+        authentication-failure-url="/login.jsp?error=true" /> 
+        <logout logout-success-url="/login.jsp"/>
+        <remember-me />
+   </http>
+
+    <authentication-manager> 
+    <authentication-provider>
+        <user-service>
+            <user name="admin" password="secret"
+                authorities="ROLE_ADMIN,ROLE_USER" />
+            <user name="user1" password="1111" authorities="ROLE_USER" />
+        </user-service>
+    </authentication-provider>
+    </authentication-manager> 
+
+   <beans:bean id="accessDecisionManager"
+      class="org.springframework.security.access.vote.AffirmativeBased">
+      <beans:property name="decisionVoters">
+         <beans:list>
+             <beans:bean class="org.springframework.security.access.vote.RoleVoter" />
+             <beans:bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
+             <beans:bean class="com.apress.springrecipes.board.security.IpAddressVoter"/>
+          </beans:list>
+       </beans:property>
+    </beans:bean>
+
+</beans:beans>

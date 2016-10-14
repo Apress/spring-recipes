@@ -1,0 +1,136 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <!-- Scanning enablement on package --> 
+    <context:component-scan base-package="com.apress.springrecipes.court.web" />
+    <context:component-scan base-package="com.apress.springrecipes.court.domain" />
+
+    <!-- Interceptors --> 
+    <bean id="measurementInterceptor"
+        class="com.apress.springrecipes.court.web.MeasurementInterceptor" />
+
+    <bean id="localeChangeInterceptor"
+        class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+        <property name="paramName" value="language" />
+    </bean>
+
+    <bean id="summaryReportInterceptor"
+        class="com.apress.springrecipes.court.web.ExtensionInterceptor" />
+
+    <!-- Locale resolver for cookies --> 
+    <bean id="localeResolver"
+        class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="cookieName" value="language" />
+<!--        <property name="cookieMaxAge" value="3600" /> -->
+        <property name="defaultLocale" value="en" />
+    </bean>
+
+
+    <!-- Message .properties sources --> 
+    <bean id="messageSource"
+        class="org.springframework.context.support.ResourceBundleMessageSource"> 
+        <property name="basename" value="messages" />
+    </bean>
+
+    <!-- Annotation handlers (Applied by default to ALL @controllers -->
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+        <property name="order" value="1"/>
+        <!-- Interceptors are applied to all annotated controllers -->
+         <property name="interceptors">
+            <list>
+                <ref bean="measurementInterceptor" />
+                <ref bean="localeChangeInterceptor" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="publicMapper" class="org.springplugins.web.SelectedAnnotationHandlerMapping">
+        <property name="order" value="0" />
+	<property name="urls">
+		<list>
+                        <value>/reservationSummary*</value>
+		</list>
+	</property>
+	<property name="interceptors">
+		<list>
+     	 	      <ref bean="summaryReportInterceptor" />
+		</list>
+	</property>
+    </bean>
+
+    <bean
+        class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="webBindingInitializer">
+            <bean
+                class="com.apress.springrecipes.court.web.ReservationBindingInitializer" />
+        </property>
+    </bean>
+
+    <!-- View resolvers --> 
+    <!-- View exception resolver -->
+
+    <bean
+        class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop
+                    key="com.apress.springrecipes.court.service.ReservationNotAvailableException">
+                    reservationNotAvailable
+                </prop>
+                <prop
+                    key="com.apress.springrecipes.court.web.ReservationWebException">
+                    reservationWebException
+                </prop>
+		<!-- Define catch all class or property defaultErrorView -->
+		<!-- <prop key="java.lang.Exception">error</prop>-->
+            </props>
+        </property>
+       <property name="defaultErrorView" value="error"/>
+
+    </bean> 
+
+    <!-- Views mapped in views.properties (PDF, XLS classes, and others) --> 
+    <bean id="contentNegotiatingResolver"
+              class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order"
+                  value="#{T(org.springframework.core.Ordered).HIGHEST_PRECEDENCE}" />
+         <property name="mediaTypes">
+            <map>
+                  <entry key="html" value="text/html"/>
+                  <entry key="pdf" value="application/pdf"/>
+                  <entry key="xsl" value="application/vnd.ms-excel"/>
+                  <entry key="xml" value="application/xml"/>
+                  <entry key="json" value="application/json"/>
+            </map>
+        </property>
+     </bean>
+
+    <bean id="resourceBundleResolver"
+        class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+        <property name="basename" value="views" />
+        <property name="order" value="#{contentNegotiatingResolver.order+1}" />
+    </bean>
+
+    <bean id="secondaryResourceBundleResolver"
+        class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+        <property name="basename" value="secondaryviews" />
+        <property name="order" value="#{resourceBundleResolver.order+1}" />
+    </bean>
+
+    <!-- Views mapped in JSPs under /WEB-INF/jsp --> 
+
+    <bean id="internalResourceResolver"
+        class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+        <property name="order" value="#{secondaryResourceBundleResolver.order+1}" />
+
+    </bean>
+
+</beans>
+

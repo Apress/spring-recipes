@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+        ">
+
+    <context:component-scan annotation-config="true" base-package="com.apress.springrecipes.replicator"/>
+
+    <task:scheduler id="scheduler" pool-size="10"/>
+    <task:executor id="executor" pool-size="10"/>
+
+    <task:annotation-driven scheduler="scheduler" executor="executor"/>
+
+    <bean id="fileCopier" class="com.apress.springrecipes.replicator.FileCopierImpl"/>
+
+    <bean id="documentReplicator"
+          class="com.apress.springrecipes.replicator.FileReplicatorImpl">
+        <property name="srcDir" value="#{systemProperties['user.home']}/docs"/>
+        <property name="destDir" value="#{systemProperties['user.home']}/docs_backup"/>
+        <property name="fileCopier" ref="fileCopier"/>
+    </bean>
+
+</beans>

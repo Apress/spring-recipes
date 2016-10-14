@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas height="100" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+           width="100%" xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="setup(event)">
+    <mx:Script>
+		<![CDATA[
+        import com.apress.springrecipes.auction.model.Item;
+
+        import mx.events.FlexEvent;
+        import mx.rpc.remoting.RemoteObject;
+
+        [Autowired(name = "auctionService")]
+        public var auctionService : RemoteObject;
+
+        [Bindable]
+        public var item : Item;
+
+        [Bindable]
+        public var imageWidth : int = 80;
+
+        public function setup(fe : FlexEvent) : void
+        {
+            this.setStyle('borderTop', '1px solid black');
+        }
+
+        // need the following to benefit from the pluggability of List components
+        override public function set data(value : Object) : void
+        {
+            this.item = value as Item;
+            img.load('http://localhost:8080/' + item.imageUrl);
+        }
+
+        override public function get data() : Object {
+            return  item;
+        }
+		]]>
+	</mx:Script>
+
+
+    <mx:Image horizontalAlign="center" scaleContent="true" width="{imageWidth}" id="img" x="10" y="10"/>
+
+    <mx:Label text="{item.description}" x="{img.x +img.width+10}" y="{img.y}" id="description"/>
+    <mx:Label text="{'$'+item.basePrice.toPrecision(4)}" x="{description.x}"
+              y="{description.y + description.height + 5}"/>
+
+
+</mx:Canvas>

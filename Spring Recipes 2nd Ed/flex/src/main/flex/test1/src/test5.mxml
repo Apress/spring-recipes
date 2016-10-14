@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ this will demonstrate how to use Spring ActionScript
+-->
+<mx:Application
+        xmlns:flexlib="http://code.google.com/p/flexlib/"
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="absolute"
+        preinitialize="onPreInit(event)"
+        creationComplete="onComplete(event)"
+        >
+
+    <mx:Script>
+ 		<![CDATA[
+        import mx.rpc.AbstractOperation;
+        import mx.rpc.remoting.RemoteObject;
+
+        import com.apress.springrecipes.Person;
+
+        import org.springextensions.actionscript.context.support.FlexXMLApplicationContext;
+        import org.springextensions.actionscript.context.support.XMLApplicationContext;
+
+        import mx.events.FlexEvent;
+        import mx.controls.Alert;
+        import mx.messaging.ChannelSet;
+        import mx.messaging.channels.AMFChannel;
+        import mx.controls.Alert;
+        import mx.rpc.AsyncRequest;
+        import mx.rpc.AsyncToken;
+        import mx.rpc.events.*;
+        import mx.rpc.events.FaultEvent;
+        import mx.collections.ItemResponder;
+
+        private var _contextUrl : String;
+        private var _applicationContext : XMLApplicationContext;
+
+        [Bindable]
+        [Embed(source="app-context2.xml",mimeType ="application/octet-stream")]
+        public var contextConfig : Class;
+
+        public function onPreInit(fe : FlexEvent) : void {
+            _contextUrl = "app-context2.xml";// this.parameters['SpringASContextURL'];
+        }
+
+        private function onFlexXMLApplicationContextComplete(se : Event) : void {
+            Alert.show('flex Spring ActionScript is setup!');
+
+            initRemoteServices();
+
+        }
+
+        public function onComplete(fe : FlexEvent) : void {
+            this._applicationContext = new FlexXMLApplicationContext();
+            this._applicationContext.addConfigLocation(_contextUrl);
+            this._applicationContext.addEventListener(Event.COMPLETE, onFlexXMLApplicationContextComplete);
+            this._applicationContext.load();
+        }
+
+        private function initRemoteServices() : void {
+            var channel : AMFChannel = new AMFChannel("springServices", "http://localhost:8080/flex/mb/amf");
+            var channelSet : ChannelSet = new ChannelSet();
+            channelSet.addChannel(channel);
+
+            var crmService : RemoteObject = new RemoteObject('crmService');
+            crmService.channelSet = channelSet;
+            crmService.addEventListener(FaultEvent.FAULT, faultHandler);
+
+            var at : AsyncToken = crmService.howManyPeopleAreLoggedIn();
+            at.addResponder(new ItemResponder(function(re : ResultEvent, t : AsyncToken) : void {
+                var count : int = re.result as int;
+                Alert.show('the count is ' + count);
+            }, faultHandler));
+
+        }
+
+        private function faultHandler(fe : FaultEvent) : void {
+            Alert.show('blam!')
+        }
+ 		]]>
+ 	</mx:Script>
+
+</mx:Application>

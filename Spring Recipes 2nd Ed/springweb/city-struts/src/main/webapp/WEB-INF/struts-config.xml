@@ -1,0 +1,21 @@
+<!DOCTYPE struts-config PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+    "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+<struts-config>
+    <form-beans>
+        <form-bean name="distanceForm"
+            type="com.apress.springrecipes.city.struts.DistanceForm" />
+    </form-beans>
+
+    <action-mappings>
+        <action path="/distance"
+            type="org.springframework.web.struts.DelegatingActionProxy"
+            name="distanceForm" validate="false">
+            <forward name="success"
+                path="/WEB-INF/jsp/distance.jsp" />
+        </action>
+    </action-mappings>
+
+    <plug-in className="org.springframework.web.struts.ContextLoaderPlugIn" />
+</struts-config>
